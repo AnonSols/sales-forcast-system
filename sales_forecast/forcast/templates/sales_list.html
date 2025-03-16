@@ -1,0 +1,138 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sales Forecast System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <!-- Loading Spinner (Hidden by Default) -->
+    <div id="loading" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50">
+        <div class="flex items-center justify-center h-full">
+            <div class="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <div class="mb-8 text-center">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">Sales Forecast Dashboard</h1>
+            <p class="text-gray-600">Generated on {{ current_date }}</p>
+        </div>
+
+        <!-- Data Summary Dashboard -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-green-100 p-6 rounded-lg shadow">
+                <h3 class="text-lg font-semibold text-gray-700 mb-2">Total Sales</h3>
+                <p class="text-2xl font-bold">${{ total_sales|floatformat:2 }}</p>
+            </div>
+            <div class="bg-blue-100 p-6 rounded-lg shadow">
+                <h3 class="text-lg font-semibold text-gray-700 mb-2">Average Daily Sales</h3>
+                <p class="text-2xl font-bold">${{ average_sales|floatformat:2 }}</p>
+            </div>
+            <div class="bg-purple-100 p-6 rounded-lg shadow">
+                <h3 class="text-lg font-semibold text-gray-700 mb-2">Forecast Period</h3>
+                <p class="text-2xl font-bold">3 Days</p>
+            </div>
+        </div>
+
+        <!-- Chart -->
+        <div class="bg-white p-6 rounded-lg shadow-lg mb-8">
+            <canvas id="salesChart"></canvas>
+        </div>
+
+        <!-- Data Table -->
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+            <h2 class="text-xl font-semibold mb-4">Historical Data</h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left">Date</th>
+                            <th class="px-6 py-3 text-left">Category</th>
+                            <th class="px-6 py-3 text-left">Sales</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        {% for record in sales_records %}
+                        <tr>
+                            <!-- Django Template Filters -->
+                            <td class="px-6 py-4">{{ record.date|date:"M d, Y" }}</td>
+                            <td class="px-6 py-4">{{ record.product_category }}</td>
+                            <td class="px-6 py-4">${{ record.sales|floatformat:2 }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- JSON Data -->
+    {{ forcast_dates|json_script:"forcastDates" }}
+    {{ forcast_values|json_script:"forcastValues" }}
+    {{ sales_records|length|json_script:"salesRecordsLength" }}
+    {{ total_sales|json_script:"totalSales" }}
+    {{ average_sales|json_script:"averageSales" }}
+
+    <script>
+        // Show loading spinner on page load
+        document.getElementById('loading').classList.remove('hidden');
+
+        // Parse all data
+        const parseData = () => {
+            return {
+                dates: JSON.parse(document.getElementById('forcastDates').textContent || '[]'),
+                values: JSON.parse(document.getElementById('forcastValues').textContent || '[0,0,0]'),
+                length: JSON.parse(document.getElementById('salesRecordsLength').textContent || '0'),
+                total: JSON.parse(document.getElementById('totalSales').textContent || '0'),
+                average: JSON.parse(document.getElementById('averageSales').textContent || '0')
+            };
+        };
+
+        // Initialize chart
+        const initChart = (data) => {
+            const ctx = document.getElementById('salesChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.dates,
+                    datasets: [{
+                        label: 'Sales Forecast (Next 3 Days)',
+                        data: [...Array(data.length).fill(null), ...data.values],
+                        borderColor: 'rgb(79, 70, 229)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'top' },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => `$${ctx.parsed.y.toFixed(2)}`
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            ticks: {
+                                callback: (value) => `$${value.toFixed(2)}`
+                            }
+                        }
+                    }
+                }
+            });
+        };
+
+        // On page load
+        window.addEventListener('load', () => {
+            const data = parseData();
+            initChart(data);
+            document.getElementById('loading').classList.add('hidden');
+        });
+    </script>
+</body>
+</html>
