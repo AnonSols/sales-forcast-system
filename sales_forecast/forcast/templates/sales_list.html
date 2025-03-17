@@ -33,7 +33,7 @@
             </div>
             <div class="bg-purple-100 p-6 rounded-lg shadow">
                 <h3 class="text-lg font-semibold text-gray-700 mb-2">Forecast Period</h3>
-                <p class="text-2xl font-bold">3 Days</p>
+                <p class="text-2xl font-bold">{{forecast_days}} Days</p>
             </div>
         </div>
 
@@ -69,70 +69,105 @@
         </div>
     </div>
 
+    
     <!-- JSON Data -->
+    {{ historical_dates|json_script:"historicalDates" }}
     {{ forcast_dates|json_script:"forcastDates" }}
     {{ forcast_values|json_script:"forcastValues" }}
     {{ sales_records|length|json_script:"salesRecordsLength" }}
     {{ total_sales|json_script:"totalSales" }}
     {{ average_sales|json_script:"averageSales" }}
+    {{ historical_values|json_script:"historicalValues" }} 
 
-    <script>
-        // Show loading spinner on page load
-        document.getElementById('loading').classList.remove('hidden');
+    <!-- Debugging: Print JSON data -->
+<script>
+    console.log("Historical Dates:", JSON.parse(document.getElementById('historicalDates').textContent));
+    console.log("Historical Values:", JSON.parse(document.getElementById('historicalValues').textContent));
+    console.log("Forecast Dates:", JSON.parse(document.getElementById('forcastDates').textContent));
+    console.log("Forecast Values:", JSON.parse(document.getElementById('forcastValues').textContent));
+</script>
 
-        // Parse all data
-        const parseData = () => {
-            return {
-                dates: JSON.parse(document.getElementById('forcastDates').textContent || '[]'),
-                values: JSON.parse(document.getElementById('forcastValues').textContent || '[0,0,0]'),
-                length: JSON.parse(document.getElementById('salesRecordsLength').textContent || '0'),
-                total: JSON.parse(document.getElementById('totalSales').textContent || '0'),
-                average: JSON.parse(document.getElementById('averageSales').textContent || '0')
-            };
-        };
+<script>
+    // Parse all data
+    const parseData = () => {
+        return {
+            historicalDates: JSON.parse(document.getElementById('historicalDates').textContent || '[]'),
+            historicalValues: JSON.parse(document.getElementById('historicalValues').textContent || '[]'),
+            forecastDates: JSON.parse(document.getElementById('forcastDates').textContent || '[]'),
+            forecastValues: JSON.parse(document.getElementById('forcastValues').textContent || '[]')
+        }; 
+    };
 
-        // Initialize chart
-        const initChart = (data) => {
-            const ctx = document.getElementById('salesChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: data.dates,
-                    datasets: [{
-                        label: 'Sales Forecast (Next 3 Days)',
-                        data: [...Array(data.length).fill(null), ...data.values],
-                        borderColor: 'rgb(79, 70, 229)',
-                        tension: 0.1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: { position: 'top' },
-                        tooltip: {
-                            callbacks: {
-                                label: (ctx) => `$${ctx.parsed.y.toFixed(2)}`
-                            }
+    // Initialize chart
+    const initChart = (data) => {
+        const ctx = document.getElementById('salesChart').getContext('2d');
+        
+        // Debugging: Log the data
+        console.log("Chart Data:", data);
+
+        // Create the chart
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.historicalDates.concat(data.forecastDates),
+                datasets: [{
+                    label: 'Sales History & Forecast',
+                    data: data.historicalValues.concat(data.forecastValues),
+                    borderColor: 'rgb(79, 70, 229)',
+                    tension: 0.1,
+                    pointRadius: 3,
+                    pointBackgroundColor: 'rgb(79, 70, 229)'
+                }]
+            },
+            options: {
+                responsive: true,  
+                maintainAspectRatio: false, 
+                plugins: {
+                    legend: { 
+                        position: 'top',
+                        labels: {
+                            boxWidth: 12
                         }
                     },
-                    scales: {
-                        y: {
-                            beginAtZero: false,
-                            ticks: {
-                                callback: (value) => `$${value.toFixed(2)}`
-                            }
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => `$${ctx.parsed.y.toFixed(2)}`
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        title: {
+                            display: true,
+                            text: 'Sales Amount ($)'
+                        },
+                        ticks: {
+                            callback: (value) => `$${value.toFixed(2)}`
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Date'
                         }
                     }
                 }
-            });
-        };
+            }
+        });
+    };
 
-        // On page load
-        window.addEventListener('load', () => {
+    // On page load
+    window.addEventListener('load', () => {
+        try {
             const data = parseData();
             initChart(data);
+        } catch (error) {
+            console.error("Error initializing chart:", error);
+        } finally {
             document.getElementById('loading').classList.add('hidden');
-        });
-    </script>
+        }
+    });
+</script>
 </body>
 </html>

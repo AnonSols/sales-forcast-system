@@ -2,7 +2,7 @@
 import numpy as np
 from statsmodels.tsa.arima.model import ARIMA
 
-def forecast_sales(historical_data):
+def forcast_sales(historical_data,steps=7):
     """
     Predicts next 3 periods of sales using ARIMA(1,1,1)
 
@@ -21,15 +21,12 @@ def forecast_sales(historical_data):
     Returns:
         list: Forecasted values (3 periods ahead)
     """
+    if len(historical_data) < 5:
+        return [0] * steps  # Return array matching forecast period
+    
     try:
-        if len(historical_data) < 5:  # Minimum data check
-            return [sum(historical_data)/len(historical_data)]*3 if historical_data else [0]*3
-        
         model = ARIMA(historical_data, order=(1,1,1))
         model_fit = model.fit()
-        forcast = model_fit.forcast(steps=3)
-        return [round(val, 2) for val in forcast]
-    
-    except Exception as e:
-        print(f"Forecast error: {e}")
-        return [0]*3  # Fallback
+        return [round(val, 2) for val in model_fit.forecast(steps=steps)]
+    except:
+        return [0] * steps  
