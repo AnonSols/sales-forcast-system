@@ -58,15 +58,16 @@ class SalesListView(LoginRequiredMixin,ListView):
         return context
 
 def export_sales_csv(request):
-    """Export sales records to a CSV file."""
+    """Export sales records to a CSV file with proper date formatting."""
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="sales_records.csv"'
+    response.write('\ufeff')  # Add BOM to ensure correct encoding in Excel
 
     writer = csv.writer(response)
-    writer.writerow(['Date', 'Category', 'Sales'])
+    writer.writerow(['Date', 'Category', 'Sales'])  # Header row
 
     sales_records = HistoricalData.objects.all()
     for record in sales_records:
-        writer.writerow([record.date, record.product_category, record.sales])
+        writer.writerow([record.date.strftime('%Y-%m-%d'), record.product_category, record.sales])
 
     return response
