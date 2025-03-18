@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
-
+import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -141,6 +141,16 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.file'  # Use file-based sessions
+SESSION_FILE_PATH = BASE_DIR / 'sessions'  # Store session files inside the project
+
+SESSION_COOKIE_AGE = 86400  # Keep session alive for 1 day (in seconds)
+SESSION_SAVE_EVERY_REQUEST = True  # Extend session on every request
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Prevent logout when the browser closes
+
+if not os.path.exists(SESSION_FILE_PATH):
+    os.makedirs(SESSION_FILE_PATH)
 ##### PROVIDER ####
 
 # SOCIALACCOUNT_PROVIDERS = {
