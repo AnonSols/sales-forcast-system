@@ -17,8 +17,19 @@
     <div class="max-w-7xl mx-auto">
         <!-- Header -->
         <div class="mb-8 text-center">
-            <h1 class="text-4xl font-bold text-gray-800 mb-2">Sales Forecast Dashboard</h1>
+            <a href="{% url 'sales-list' %}" class="hover:text-slate-700"> <h1 class="text-4xl font-bold text-gray-800 mb-2">Sales Forecast Dashboard</h1></a>
+           
             <p class="text-gray-600">Generated on {{ current_date }}</p>
+            <form action="{% url 'logout' %}" method="post" class="inline">
+                {% csrf_token %}
+                <button type="submit" class="text-sm text-blue-500 hover:text-blue-700">Logout</button>
+        </div>
+            <div class="mb-8">
+                <form method="get" action="{% url 'sales-list' %}">
+                    <input type="text" name="q" placeholder="Search by category or date" class="w-full px-4 py-2 border border-gray-300 rounded-md">
+                    <button type="submit" class="mt-2 bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600">Search</button>
+                </form>
+            </div>
         </div>
 
         <!-- Data Summary Dashboard -->
@@ -39,7 +50,7 @@
 
         <!-- Chart -->
         <div class="bg-white p-6 rounded-lg shadow-lg mb-8">
-            <canvas id="salesChart"></canvas>
+            <canvas id="salesChart" style="height:350px"></canvas>
         </div>
 
         <!-- Data Table -->
@@ -122,6 +133,10 @@
             options: {
                 responsive: true,  
                 maintainAspectRatio: false, 
+                animation:{
+                    duration: 2000,
+                    easing: 'easeInOutQuad',
+                },
                 plugins: {
                     legend: { 
                         position: 'top',
@@ -137,13 +152,15 @@
                 },
                 scales: {
                     y: {
-                        beginAtZero: false,
+                        beginAtZero: true,
                         title: {
                             display: true,
                             text: 'Sales Amount ($)'
                         },
                         ticks: {
-                            callback: (value) => `$${value.toFixed(2)}`
+                            stepSize: 1000,
+                            callback: (value) => `$${value.toFixed(2)}`,
+                            autoSkip: false
                         }
                     },
                     x: {
