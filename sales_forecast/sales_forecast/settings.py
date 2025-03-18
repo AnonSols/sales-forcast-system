@@ -59,7 +59,7 @@ MIDDLEWARE = [
     # 'allauth.account.middleware.AccountMiddleware',
 ]
 
-LOGIN_REDIRECT_URL = 'sales-list'
+LOGIN_REDIRECT_URL = 'import-sales'
 LOGOUT_REDIRECT_URL = 'login'
 
 ROOT_URLCONF = 'sales_forecast.urls'

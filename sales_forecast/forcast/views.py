@@ -78,6 +78,7 @@ def export_sales_csv(request):
 
     return response
 
+# @login_required(login_url='/login/')
 def import_sales_csv(request):
     """Handle CSV file upload and import data into the database."""
     if request.method == "POST":
