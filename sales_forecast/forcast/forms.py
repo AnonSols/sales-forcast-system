@@ -1,4 +1,4 @@
 from django import forms
 
-class SalesDataUploadForm(forms.Form):
+class SalesDataImportForm(forms.Form):
     file = forms.FileField(label="Upload CSV File")

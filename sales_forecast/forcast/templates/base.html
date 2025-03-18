@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Sales Forecast{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex flex-col min-h-screen">
+
+    <!-- Navbar -->
+    <nav class="bg-blue-600 text-white p-4">
+        <div class="container mx-auto flex justify-between">
+            <a href="{% url 'sales-list' %}" class="text-lg font-semibold">Sales Forecast</a>
+            <div>
+                <a href="{% url 'sales-list' %}" class="px-3">Sales</a>
+                <a href="{% url 'import-sales' %}" class="px-3">Import Data</a>
+                <a href="{% url 'logout' %}" class="px-3">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mx-auto p-6 flex-grow">
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white text-center p-4 mt-10">
+        &copy; 2025 Sales Forecast System
+    </footer>
+
+</body>
+</html>

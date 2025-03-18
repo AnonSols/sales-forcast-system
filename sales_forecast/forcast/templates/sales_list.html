@@ -90,31 +90,37 @@
             </div>
         </div>
         {% if is_paginated %}
-  <nav class="flex items-center justify-between mt-4">
-    <ul class="pagination flex space-x-2">
-      {% if page_obj.has_previous %}
-        <li>
-          <a class="px-3 py-1 bg-gray-200 rounded" href="?page=1">First</a>
-        </li>
-        <li>
-          <a class="px-3 py-1 bg-gray-200 rounded" href="?page={{ page_obj.previous_page_number }}">Previous</a>
-        </li>
-      {% endif %}
+        <div class="flex items-center justify-between">
 
-      <li class="px-3 py-1 bg-blue-500 text-white rounded">
-        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
-      </li>
 
-      {% if page_obj.has_next %}
-        <li>
-          <a class="px-3 py-1 bg-gray-200 rounded" href="?page={{ page_obj.next_page_number }}">Next</a>
-        </li>
-        <li>
-          <a class="px-3 py-1 bg-gray-200 rounded" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
-        </li>
-      {% endif %}
-    </ul>
-  </nav>
+            <nav class="flex items-center justify-between mt-4">
+              <ul class="pagination flex space-x-2 items-center justify-center">
+                {% if page_obj.has_previous %}
+                  <li>
+                    <a class="px-3 py-1 bg-gray-200 rounded" href="?page=1">First</a>
+                  </li>
+                  <li>
+                    <a class="px-3 py-1 bg-gray-200 rounded" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                  </li>
+                {% endif %}
+          
+                <li class="px-3 py-1 bg-blue-500 text-white rounded">
+                  Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                </li>
+          
+                {% if page_obj.has_next %}
+                  <li>
+                    <a class="px-3 py-1 bg-gray-200 rounded" href="?page={{ page_obj.next_page_number }}">Next</a>
+                  </li>
+                  <li>
+                    <a class="px-3 py-1 bg-gray-200 rounded" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+                  </li>
+                {% endif %}
+              </ul>
+            </nav>
+            <a href="{% url 'import-sales' %}" class="px-4 py-2 my-2 bg-green-500 text-white rounded">Import CSV</a>
+        </div>
+
 {% endif %}
     </div>
 

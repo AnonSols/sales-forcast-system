@@ -7,6 +7,9 @@ from .models import HistoricalData
 from django.views.generic import ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
+from django.shortcuts import render, redirect
+from .forms import SalesDataImportForm  # Import the form
+
 
 class SalesListView(LoginRequiredMixin,ListView):
    
@@ -74,3 +77,25 @@ def export_sales_csv(request):
         writer.writerow([record.date.strftime('%Y-%m-%d'), record.product_category, record.sales])
 
     return response
+
+def import_sales_csv(request):
+    """Handle CSV file upload and import data into the database."""
+    if request.method == "POST":
+        form = SalesDataImportForm(request.POST, request.FILES)
+        if form.is_valid():
+            csv_file = request.FILES["csv_file"].read().decode("utf-8").splitlines()
+            reader = csv.reader(csv_file)
+            next(reader)  # Skip the header row
+
+            for row in reader:
+                try:
+                    date, product_category, sales = row
+                    HistoricalData.objects.create(date=date, product_category=product_category, sales=sales)
+                except ValueError:
+                    continue  # Skip invalid rows
+
+            return redirect("sales-list")  # Redirect to sales list after import
+    else:
+        form = SalesDataImportForm()
+
+    return render(request, "import_sales.html", {"form": form})
