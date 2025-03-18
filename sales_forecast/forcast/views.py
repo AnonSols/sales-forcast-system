@@ -14,6 +14,7 @@ class SalesListView(LoginRequiredMixin,ListView):
     context_object_name = 'sales_records'
     ordering = ['-date']
     login_url = '/login/'
+    paginate_by = 10
 
     FORECAST_DAYS = 7
 
@@ -21,13 +22,15 @@ class SalesListView(LoginRequiredMixin,ListView):
     #     return HistoricalData.objects.all().order_by('-date')
     
     def get_queryset(self):
-        query = self.request.GET.get('q')
+        query = self.request.GET.get("q")
+        queryset = HistoricalData.objects.all().order_by("-date")
+        
         if query:
-            return HistoricalData.objects.filter(
+            queryset = queryset.filter(
                 Q(product_category__icontains=query) | Q(sales__icontains=query)
-            ).order_by('-date')
-        return HistoricalData.objects.all().order_by('-date')
-    
+            )
+
+        return queryset
   
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
